@@ -13,6 +13,7 @@ class Simulation:
         self.nb_drones = nb_drones
         self.drones: list[Drone] = []
         self._turn = 0
+        self.resolver = MovemnentResolver(graph)
 
     def create_drones(self, path: list[Hub]) -> list[Drone]:
         for i in range(self.nb_drones):
@@ -67,6 +68,7 @@ class Simulation:
             proposals = self.get_movement_proposals()
 
             self.move_drones(proposals)
+            valid_proposals = self.resolve_proposals(proposals)
             self._turn += 1
             for drone in self.drones:
                 print(f"id{drone.id} name_hub{drone.current_hub().name}")
