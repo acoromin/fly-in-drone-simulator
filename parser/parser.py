@@ -26,6 +26,29 @@ class MapParser:
             raise MapError.from_lark(error, map_text)
         return tree
 
+    def _parse_metadata(self, data) -> dict:
+        metadata_data = {}
+        seen = set()
+        for item in data.children:
+            item = item.children[0]
+            key = str(item.data)
+
+            if key in seen:
+                raise MapError(
+                    f"Line {item.meta.line}: duplicated metadata '{key}'."
+                )
+
+            seen.add(key)
+
+            if key == "color":
+                metadata_data["color"] = str(item.children[0])
+            elif key == "zone":
+                metadata_data["zone"] = str(item.children[0])
+            elif key == "max_drones":
+                metadata_data["max_drones"] = int(item.children[0])
+
+        return metadata_data
+
     def convert_data(self, file_route: str) -> dict:
         tree = self.parse_file(file_route)
         branches = tree.children
@@ -33,9 +56,12 @@ class MapParser:
         map_data["nodes"] = []
         map_data["connections"] = []
         for branch in branches:
+            if branch.data == "statement":
+                branch = branch.children[0]
             if branch.data == "count_drones":
                 map_data["nb_drones"] = int(branch.children[0])
                 map_data["nb_drones_line"] = branch.meta.line
+
             elif branch.data in ("start_hub", "end_hub", "hub"):
                 node_data = {
                         "type": str(branch.data),
@@ -45,17 +71,10 @@ class MapParser:
                         "n_line": branch.meta.line,
                         }
                 if len(branch.children) > 3:
-                    data = branch.children[3]
-                    metadata = data.children
-                    for item in metadata:
-                        item = item.children[0]
-                        if item.data == "color":
-                            node_data["color"] = str(item.children[0])
-                        elif item.data == "zone":
-                            node_data["zone"] = str(item.children[0])
-                        elif item.data == "max_drones":
-                            node_data["max_drones"] = int(item.children[0])
+                    metadata = self._parse_metadata(branch.children[3])
+                    node_data.update(metadata)
                 map_data["nodes"].append(node_data)
+
             elif branch.data == "connections":
                 connection_data = {
                         "source": str(branch.children[0]),
@@ -68,4 +87,5 @@ class MapParser:
                     connection_data["max_link_capacity"] = int(
                             metadata[0].children[0])
                 map_data["connections"].append(connection_data)
+
         return map_data

@@ -15,6 +15,8 @@ def main() -> None:
     parser = MapParser()
 
     try:
+        tree = parser.parse_file(sys.argv[1])
+        print(tree.pretty())
         map_data = parser.convert_data(file_route)
         validated_map = MapModel(**map_data)
 
@@ -34,16 +36,6 @@ def main() -> None:
 
     graph_object = Graph(validated_map)
     graph = graph_object.generate_graph()
-    pathfinder = Pathfinder(graph)
-    path = pathfinder.find_route_bfs()
-    simulation = Simulation(graph, validated_map.nb_drones)
-    simulation.create_drones(path)
-    print(len(simulation.drones))
-    for drone in simulation.drones:
-        print(drone.id)
-        print(drone.current_hub().name)
-    simulation.run_simulation()
-
     
 if __name__ == "__main__":
     main()

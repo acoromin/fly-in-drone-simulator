@@ -1,6 +1,8 @@
-start: _NEWLINE* count_drones nodes+ connections+
+start: _NEWLINE* count_drones statement+
 
 count_drones: "nb_drones:" SIGNED_INT _NEWLINE+
+
+statement: nodes | connections
 
 nodes: "start_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? _NEWLINE+ -> start_hub
      | "end_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? _NEWLINE+ -> end_hub
