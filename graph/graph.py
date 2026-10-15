@@ -8,6 +8,8 @@ class Graph:
         self.hubs: dict[str, Hub] = {}
         self.connections: list[Connection] = []
         self.adjacency: dict[Hub, list[Connection]] = {}
+        self.start_hub: Hub | None = None
+        self.end_hub: Hub | None = None
 
     def _create_hubs(self) -> None:
         for node_model in self.map_model.nodes:
@@ -20,6 +22,10 @@ class Graph:
                     node_model.color,
                     node_model.max_drones,
                     )
+            if node_model.type == "start_hub":
+                self.start_hub = self.hubs[node_model.name]
+            elif node_model.type == "end_hub":
+                self.end_hub = self.hubs[node_model.name]
 
     def _create_connections(self) -> None:
         for connection_model in self.map_model.connections:
@@ -31,7 +37,28 @@ class Graph:
                 connection_model.max_link_capacity
                 ))
 
-    def generate_graph(self) -> dict[Hub, list[Connection]]:
+    def get_connection(
+            self,
+            hub_a: Hub,
+            hub_b: Hub
+            ) -> Connection | None:
+
+        for connection in self.connections:
+            if (
+                    connection.source == hub_a and
+                    connection.target == hub_b
+                    ):
+                return connection
+
+            if (
+                    connection.source == hub_b and
+                    connection.target == hub_a
+                    ):
+                return connection
+
+        return None
+
+    def generate_graph(self) -> None:
         self._create_hubs()
         self._create_connections()
         for hub in self.hubs.values():
@@ -39,5 +66,3 @@ class Graph:
         for connection in self.connections:
             self.adjacency[connection.source].append(connection)
             self.adjacency[connection.target].append(connection)
-        return self.adjacency
-

@@ -16,11 +16,11 @@ class Hub:
         self.zone = zone
         self.color = color
         self.max_drone = max_drone
-        self._n_drone = 0
 
-    def set_n_drone(self, drones: int) -> None:
-        self._n_drone += drones
+    def get_zone_cost(self) -> int:
+        if self.zone == "restricted":
+            return 2
+        return 1
 
-    def get_n_drones(self) -> int:
-        return self._n_drone
-
+    def is_blocked(self) -> bool:
+        return self.zone == "blocked"
