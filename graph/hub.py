@@ -1,13 +1,16 @@
+from typing import Literal
+
+
 class Hub:
     def __init__(
             self,
-            type: str,
+            type: Literal["hub", "start_hub", "end_hub"],
             name: str,
             x: int,
             y: int,
-            zone: str,
-            color: str,
-            max_drone: int,
+            zone: Literal["normal", "blocked", "restricted", "priority"],
+            color: str | None,
+            max_drones: int,
             ) -> None:
         self.type = type
         self.name = name
@@ -15,9 +18,9 @@ class Hub:
         self.y = y
         self.zone = zone
         self.color = color
-        self.max_drone = max_drone
+        self.max_drones = max_drones
 
-    def get_zone_cost(self) -> int:
+    def get_entry_cost(self) -> int:
         if self.zone == "restricted":
             return 2
         return 1

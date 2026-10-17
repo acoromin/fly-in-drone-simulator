@@ -1,5 +1,4 @@
 import sys
-from simulation import Simulation
 from pydantic import ValidationError
 from pathfinder.pathfinder import Pathfinder
 from parser import MapParser, MapError, MapModel

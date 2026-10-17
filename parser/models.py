@@ -8,7 +8,7 @@ class HubModel(BaseModel):
     x: int
     y: int
     n_line: int
-    zone: str = "normal"
+    zone: Literal["normal", "blocked", "restricted", "priority"] = "normal"
     color: str | None = None
     max_drones: int = 1
 
@@ -20,14 +20,19 @@ class HubModel(BaseModel):
                     )
         return self
 
-    @model_validator(mode="after")
-    def validate_zone(self) -> "HubModel":
+    @model_validator(mode="before")
+    @classmethod
+    def validate_zone(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        zone = data.get("zone", "normal")
         zones = ["normal", "blocked", "restricted", "priority"]
-        if self.zone not in zones:
+        if zone not in zones:
             raise ValueError(
-                    f"Line {self.n_line}: invalid zone '{self.zone}'."
+                    f"Line {data.get('n_line', '?')}: invalid zone '{zone}'."
                     )
-        return self
+        return data
 
     @model_validator(mode="after")
     def validate_name(self) -> "HubModel":

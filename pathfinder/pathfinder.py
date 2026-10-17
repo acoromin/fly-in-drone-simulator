@@ -33,7 +33,7 @@ class Pathfinder:
                 if next_hub.is_blocked():
                     continue
 
-                new_cost = current_cost + next_hub.get_zone_cost()
+                new_cost = current_cost + next_hub.get_entry_cost()
 
                 if (
                     next_hub not in distances
