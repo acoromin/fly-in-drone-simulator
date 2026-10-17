@@ -104,7 +104,7 @@ class MapParser:
                     metadata = data.children
                     connection_data["max_link_capacity"] = int(
                             metadata[0].children[0])
-                _check_defined_hubs(connection_data, defined_hubs)
+                self._check_defined_hubs(connection_data, defined_hubs)
                 map_data["connections"].append(connection_data)
 
         return map_data
