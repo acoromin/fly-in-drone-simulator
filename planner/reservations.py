@@ -1,4 +1,4 @@
-from graph import Hub, Connection
+from graph import Hub, Connection, Graph
 
 class Reservations:
     def __init__(self) -> None:
@@ -65,5 +65,26 @@ class Reservations:
             if not self.can_reserve_connection(connection, turn):
                 return False
         return True
+
+    def reserve_itinerary(
+            self,
+            itinerary: list[tuple[Hub, int]],
+            graph: Graph,
+            ) -> None:
+        for hub, turn in itinerary:
+            self.reserve_hub(hub, turn)
+        for i in range(1, len(itinerary)):
+            previous_hub, previous_turn = itinerary[i - 1]
+            current_hub, current_turn = itinerary[i]
+            if previous_hub == current_hub:
+                continue
+            connection = graph.get_connection(previous_hub, current_hub)
+            if connection is None:
+                raise ValueError(
+                    f"Invalid itinerary: no connection between "
+                    f"'{previous_hub.name}' and '{current_hub.name}'."
+                )
+            for turn in range(previous_turn + 1, current_turn + 1):
+                self.reserve_connection(connection, turn)
 
 

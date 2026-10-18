@@ -1,9 +1,9 @@
 import sys
 from pydantic import ValidationError
-from pathfinder.pathfinder import Pathfinder
+from planner.pathfinder import Pathfinder
 from parser import MapParser, MapError, MapModel
 from graph import Graph
-from planner.reservations import Reservations
+from planner import Planner
 
 
 def main() -> None:
@@ -34,27 +34,14 @@ def main() -> None:
         return
 
     graph = Graph(validated_map)
-    for hub, connections in graph.adjacency.items():
-        print(f"Hub: {hub.name}")
-        print("Connections")
-        for connection in connections:
-            other_hub = connection.get_other_hub(hub)
-            print(other_hub.name)
+    planner = Planner(graph)
+    itineraries = planner.plan_itineraries(validated_map.nb_drones)
+    for drone_id, itinerary in enumerate(itineraries, start=1):
+        print(f"D{drone_id}:")
+        for hub, turn in itinerary:
+            print(hub.name, turn)
 
-    reservations = Reservations()
-    hub_a = graph.hubs["waypoint1"]
-    hub_b = graph.hubs["waypoint2"]
-
-    reservations.reserve_hub(hub_a, 2)
-    print(reservations.get_hub_reservations(hub_a, 2))  # Esperamos 1
-
-    reservations.reserve_hub(hub_a, 2)
-    print(reservations.get_hub_reservations(hub_a, 2))  # Esperamos 2
-
-    reservations.reserve_hub(hub_b, 2)
-    print(reservations.get_hub_reservations(hub_b, 2))  # Esperamos 1
-    print(reservations.get_hub_reservations(hub_a, 2))  # Debe seguir en 2
-
+    
     
 if __name__ == "__main__":
     main()
