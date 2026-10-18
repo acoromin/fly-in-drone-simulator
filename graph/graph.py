@@ -4,15 +4,15 @@ from parser.models import MapModel
 
 class Graph:
     def __init__(self, map_model: MapModel) -> None:
-        self.map_model = map_model
         self.hubs: dict[str, Hub] = {}
         self.connections: list[Connection] = []
         self.adjacency: dict[Hub, list[Connection]] = {}
         self.start_hub: Hub | None = None
         self.end_hub: Hub | None = None
+        self._generate_graph(map_model)
 
-    def _create_hubs(self) -> None:
-        for node_model in self.map_model.nodes:
+    def _create_hubs(self, map_model: MapModel) -> None:
+        for node_model in map_model.nodes:
             self.hubs[node_model.name] = Hub(
                     node_model.type,
                     node_model.name,
@@ -27,8 +27,8 @@ class Graph:
             elif node_model.type == "end_hub":
                 self.end_hub = self.hubs[node_model.name]
 
-    def _create_connections(self) -> None:
-        for connection_model in self.map_model.connections:
+    def _create_connections(self, map_model: MapModel) -> None:
+        for connection_model in map_model.connections:
             source = self.hubs[connection_model.source]
             target = self.hubs[connection_model.target]
             self.connections.append(Connection(
@@ -43,24 +43,14 @@ class Graph:
             hub_b: Hub
             ) -> Connection | None:
 
-        for connection in self.connections:
-            if (
-                    connection.source == hub_a and
-                    connection.target == hub_b
-                    ):
+        for connection in self.adjacency[hub_a]:
+            if hub_b == connection.get_other_hub(hub_a):
                 return connection
-
-            if (
-                    connection.source == hub_b and
-                    connection.target == hub_a
-                    ):
-                return connection
-
         return None
 
-    def generate_graph(self) -> None:
-        self._create_hubs()
-        self._create_connections()
+    def _generate_graph(self, map_model: MapModel) -> None:
+        self._create_hubs(map_model)
+        self._create_connections(map_model)
         for hub in self.hubs.values():
             self.adjacency[hub] = []
         for connection in self.connections:
