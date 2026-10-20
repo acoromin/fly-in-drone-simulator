@@ -1,6 +1,6 @@
 export PYGAME_HIDE_SUPPORT_PROMPT = 1
 UV ?= uv
-MAP ?= maps/easy/01_linear_path.txt
+MAP ?= maps/my_map.txt
 
 .DEFAULT_GOAL := install
 

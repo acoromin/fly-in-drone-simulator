@@ -1,3 +1,3 @@
-from .pygam_renderer import PygameRenderer
+from .pygame_renderer import PygameRenderer
 
 __all__ = ["PygameRenderer"]
