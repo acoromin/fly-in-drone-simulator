@@ -17,6 +17,7 @@ class PygameRenderer:
         self.elapsed_seconds = 0.0
         self.delivery_display_duration = 0.5
         self.delivery_times: dict[int, float] = {}
+        self.auto_mode = False
 
         pygame.init()
 
@@ -47,8 +48,19 @@ class PygameRenderer:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    elif event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_a:
+                        self.auto_mode = not self.auto_mode
+                    if event.key == pygame.K_SPACE:
                         self._start_animation()
+                    if event.key == pygame.K_r:
+                        self.auto_mode = False
+                        self.simulation.turn = 0
+                        self.is_animating = False
+                        self.animation_progress = 0.0
+                        self.elapsed_seconds = 0.0
+                        self.delivery_times.clear()
+            if self.auto_mode:
+                self._start_animation()
 
             self.screen.fill((20, 25, 30))
             self._draw_connections()
@@ -329,6 +341,16 @@ class PygameRenderer:
             return pygame.Color(180, 200, 220)
 
         try:
+            if color == "rainbow":
+                rainbow = pygame.Color(0)
+                rainbow.hsva = (
+                        (pygame.time.get_ticks()) % 360,
+                        100,
+                        100,
+                        100
+                )
+                return rainbow
+
             return pygame.Color(color)
         except ValueError:
             return pygame.Color(180, 200, 220)

@@ -64,10 +64,11 @@ class Pathfinder:
         visited = set()
         parents = {}
         initial_state = (start, 0)
+        best: dict[tuple[Hub, int], int] = {initial_state: 0}
         counter = 0
-        queue = [(0, 1, counter, initial_state)]
+        queue = [(0, 0, 1, counter, initial_state)]
         while queue:
-            _, _, _, current_state = heapq.heappop(queue)
+            _, movements, _, _, current_state = heapq.heappop(queue)
             current_hub, current_turn = current_state
             if current_state in visited:
                 continue
@@ -84,22 +85,42 @@ class Pathfinder:
                     continue
                 arrival_turn = current_turn + next_hub.get_entry_cost()
                 next_state = (next_hub, arrival_turn)
-                if next_state in parents:
-                    continue
+                next_movements = movements + 1
+
+                if next_state in best:
+                    if next_movements >= best[next_state]:
+                        continue
+                best[next_state] = next_movements
                 parents[next_state] = current_state
                 counter += 1
                 priority = 0 if next_hub.zone == "priority" else 1
                 heapq.heappush(
                     queue,
-                    (arrival_turn, priority, counter, next_state)
+                    (
+                        arrival_turn,
+                        next_movements,
+                        priority,
+                        counter,
+                        next_state
+                    )
                 )
             wait_turn = current_turn + 1
             if reservations.can_reserve_hub(current_hub, wait_turn):
                 wait_state = (current_hub, wait_turn)
-                if wait_state not in parents:
+                if wait_state not in best or movements < best[wait_state]:
+                    best[wait_state] = movements
                     parents[wait_state] = current_state
                     counter += 1
-                    heapq.heappush(queue, (wait_turn, 1, counter, wait_state))
+                    heapq.heappush(
+                            queue,
+                            (
+                                wait_turn,
+                                movements,
+                                1,
+                                counter,
+                                wait_state
+                            )
+                    )
         path: list[tuple[Hub, int]] = []
         if current_hub != end:
             return path
