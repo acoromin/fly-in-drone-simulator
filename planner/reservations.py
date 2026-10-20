@@ -1,10 +1,11 @@
 from graph import Hub, Connection, Graph
 
+
 class Reservations:
     def __init__(self) -> None:
         self.hubs: dict[int, dict[Hub, int]] = {}
         self.connections: dict[int, dict[Connection, int]] = {}
-    
+
     def get_hub_reservations(self, hub: Hub, turn: int) -> int:
         if turn not in self.hubs or hub not in self.hubs[turn]:
             return 0
@@ -18,7 +19,7 @@ class Reservations:
 
     def can_reserve_hub(self, hub: Hub, turn: int) -> bool:
         if hub.type == "start_hub" or hub.type == "end_hub":
-            return True 
+            return True
         return hub.max_drones > self.get_hub_reservations(hub, turn)
 
     def get_connection_reservations(
@@ -86,5 +87,3 @@ class Reservations:
                 )
             for turn in range(previous_turn + 1, current_turn + 1):
                 self.reserve_connection(connection, turn)
-
-

@@ -2,6 +2,7 @@ from graph import Hub, Graph
 from planner import Reservations
 import heapq
 
+
 class Pathfinder:
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
@@ -12,7 +13,7 @@ class Pathfinder:
 
         if start is None or end is None:
             return []
-        distances = {start: 0,}
+        distances = {start: 0}
         visited = set()
         parents = {}
         counter = 0
@@ -78,7 +79,8 @@ class Pathfinder:
                 if next_hub.is_blocked():
                     continue
                 if not reservations.can_move(
-                    connection, next_hub, current_turn):
+                        connection, next_hub, current_turn
+                        ):
                     continue
                 arrival_turn = current_turn + next_hub.get_entry_cost()
                 next_state = (next_hub, arrival_turn)
@@ -98,7 +100,7 @@ class Pathfinder:
                     parents[wait_state] = current_state
                     counter += 1
                     heapq.heappush(queue, (wait_turn, 1, counter, wait_state))
-        path = []
+        path: list[tuple[Hub, int]] = []
         if current_hub != end:
             return path
         while current_state != initial_state:
@@ -108,4 +110,3 @@ class Pathfinder:
         path.reverse()
 
         return path
-

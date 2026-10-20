@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from graph import Graph
 from parser import MapError, MapModel, MapParser
 from planner import Planner
-from renderer.pygame_renderer import PygameRenderer
+from renderer import PygameRenderer
 from simulation import Drone, Simulation
 
 
@@ -22,7 +22,7 @@ def main() -> int:
     try:
         parser = MapParser()
         map_data = parser.convert_data(sys.argv[1])
-        validated_map = MapModel(**map_data)
+        validated_map = MapModel.model_validate(map_data)
 
         graph = Graph(validated_map)
         planner = Planner(graph)

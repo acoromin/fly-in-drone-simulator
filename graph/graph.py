@@ -2,6 +2,7 @@ from .hub import Hub
 from .connection import Connection
 from parser.models import MapModel
 
+
 class Graph:
     def __init__(self, map_model: MapModel) -> None:
         self.hubs: dict[str, Hub] = {}

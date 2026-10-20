@@ -1,5 +1,6 @@
 from graph import Hub, Graph, Connection
 
+
 class Drone:
     def __init__(
             self,
@@ -35,4 +36,3 @@ class Drone:
             if previous_turn < turn < current_turn:
                 return graph.get_connection(previous_hub, current_hub)
         return None
-

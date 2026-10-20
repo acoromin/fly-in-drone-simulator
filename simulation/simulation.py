@@ -17,7 +17,7 @@ class Simulation:
         if self.is_finished():
             return []
         self.turn += 1
-        movements = []
+        movements: list[tuple[Drone, Hub | Connection]] = []
         for drone in self.drones:
             if drone.is_delivered(self.turn - 1):
                 continue
@@ -30,5 +30,10 @@ class Simulation:
                 current_connection = drone.get_connection_at_turn(
                     self.turn, self.graph
                     )
+                if current_connection is None:
+                    raise ValueError(
+                            f"Drone {drone.id}: invalid connection at "
+                            f"turn {self.turn}"
+                            )
                 movements.append((drone, current_connection))
         return movements

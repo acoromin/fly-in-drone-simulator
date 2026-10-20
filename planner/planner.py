@@ -1,6 +1,7 @@
 from graph import Graph, Hub
 from planner import Pathfinder, Reservations
 
+
 class Planner:
     def __init__(self, graph: Graph) -> None:
         self.graph = graph

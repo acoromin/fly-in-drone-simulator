@@ -1,10 +1,11 @@
 from graph.hub import Hub
 
+
 class Connection:
     def __init__(
-            self, 
-            source: Hub, 
-            target: Hub, 
+            self,
+            source: Hub,
+            target: Hub,
             max_link_capacity: int
             ) -> None:
         self.source = source

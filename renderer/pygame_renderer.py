@@ -342,7 +342,7 @@ class PygameRenderer:
             return (245, 245, 245)
 
         return (20, 25, 30)
-    
+
     def print_movements(
         self,
         steps: list[tuple[Drone, Hub | Connection]],

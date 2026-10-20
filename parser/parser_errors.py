@@ -43,3 +43,5 @@ class MapError(Exception):
         elif isinstance(error, UnexpectedEOF):
             message = "Unexpected end of file."
             return MapError(message)
+
+        return MapError(f"Line {error.line}: unknown parsing error.")

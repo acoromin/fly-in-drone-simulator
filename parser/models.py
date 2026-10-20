@@ -4,7 +4,7 @@ from typing import Literal
 
 class HubModel(BaseModel):
     type: Literal["hub", "start_hub", "end_hub"]
-    name: str 
+    name: str
     x: int
     y: int
     n_line: int
@@ -70,7 +70,7 @@ class MapModel(BaseModel):
     def validate_nb_drones(self) -> "MapModel":
         if self.nb_drones < 1:
             raise ValueError(
-                    f"Line {self.nb_drones_line}: nb_drones must be greater" 
+                    f"Line {self.nb_drones_line}: nb_drones must be greater"
                     " than or equal to 1."
                     )
         return self
@@ -87,7 +87,7 @@ class MapModel(BaseModel):
                         )
             else:
                 raise ValueError(
-                        "Missing start_hub: the map must contain exactly " 
+                        "Missing start_hub: the map must contain exactly "
                         "one start_hub."
                         )
         if len(ends) != 1:
@@ -98,11 +98,11 @@ class MapModel(BaseModel):
                         )
             else:
                 raise ValueError(
-                        "Missing end_hub: the map must contain exactly " 
+                        "Missing end_hub: the map must contain exactly "
                         "one end_hub."
                         )
         return self
-    
+
     @model_validator(mode="after")
     def validate_unique_hubs(self) -> "MapModel":
         seen_names = set()
@@ -128,7 +128,10 @@ class MapModel(BaseModel):
         names = [hub.name for hub in self.nodes]
         seen = set()
         for connection in self.connections:
-            if connection.source not in names or connection.target not in names:
+            if (
+                    connection.source not in names or
+                    connection.target not in names
+                    ):
                 raise ValueError(
                         f"Line {connection.n_line}: "
                         "Connections must reference existing hubs."
