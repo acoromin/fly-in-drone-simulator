@@ -4,7 +4,10 @@ from parser.models import MapModel
 
 
 class Graph:
+    """Build the fixed map topology from validated map data."""
+
     def __init__(self, map_model: MapModel) -> None:
+        """Create hubs, connections, and adjacency lists."""
         self.hubs: dict[str, Hub] = {}
         self.connections: list[Connection] = []
         self.adjacency: dict[Hub, list[Connection]] = {}
@@ -13,6 +16,7 @@ class Graph:
         self._generate_graph(map_model)
 
     def _create_hubs(self, map_model: MapModel) -> None:
+        """Create hub objects and identify the start and end hubs."""
         for node_model in map_model.nodes:
             self.hubs[node_model.name] = Hub(
                     node_model.type,
@@ -29,6 +33,7 @@ class Graph:
                 self.end_hub = self.hubs[node_model.name]
 
     def _create_connections(self, map_model: MapModel) -> None:
+        """Connect the existing hub objects using validated edges."""
         for connection_model in map_model.connections:
             source = self.hubs[connection_model.source]
             target = self.hubs[connection_model.target]
@@ -43,6 +48,7 @@ class Graph:
             hub_a: Hub,
             hub_b: Hub
             ) -> Connection | None:
+        """Return the link between ``hub_a`` and ``hub_b``, or ``None``."""
 
         for connection in self.adjacency[hub_a]:
             if hub_b == connection.get_other_hub(hub_a):
@@ -50,6 +56,7 @@ class Graph:
         return None
 
     def _generate_graph(self, map_model: MapModel) -> None:
+        """Populate each hub's list of incident connections."""
         self._create_hubs(map_model)
         self._create_connections(map_model)
         for hub in self.hubs.values():

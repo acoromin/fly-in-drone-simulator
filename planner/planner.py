@@ -3,7 +3,10 @@ from planner import Pathfinder, Reservations
 
 
 class Planner:
+    """Plan drones in order against a shared set of capacity reservations."""
+
     def __init__(self, graph: Graph) -> None:
+        """Create a pathfinder and empty reservations for the graph."""
         self.graph = graph
         self.pathfinder = Pathfinder(graph)
         self.reservations = Reservations()
@@ -12,6 +15,10 @@ class Planner:
             self,
             nb_drones: int
             ) -> list[list[tuple[Hub, int]]]:
+        """Return ``nb_drones`` reserved itineraries, or [] if unreachable.
+
+        Sequential planning does not guarantee a globally optimal schedule.
+        """
         if not self.pathfinder.find_route_dijkstra():
             return []
         itineraries = []

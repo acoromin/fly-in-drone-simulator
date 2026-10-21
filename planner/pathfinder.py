@@ -4,10 +4,14 @@ import heapq
 
 
 class Pathfinder:
+    """Find routes through a graph while respecting existing reservations."""
+
     def __init__(self, graph: Graph) -> None:
+        """Keep the graph used by both static and time-aware searches."""
         self.graph = graph
 
     def find_route_dijkstra(self) -> list[Hub]:
+        """Return a lowest-cost static route, or [] if none exists."""
         start = self.graph.start_hub
         end = self.graph.end_hub
 
@@ -57,6 +61,11 @@ class Pathfinder:
             self,
             reservations: Reservations,
             ) -> list[tuple[Hub, int]]:
+        """Return earliest ``(hub, turn)`` states allowed by ``reservations``.
+
+        Ties favor fewer moves, then priority zones. Waiting is not a move;
+        return [] if unreachable.
+        """
         start = self.graph.start_hub
         end = self.graph.end_hub
         if start is None or end is None:

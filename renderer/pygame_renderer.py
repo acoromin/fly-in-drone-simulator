@@ -5,7 +5,10 @@ import math
 
 
 class PygameRenderer:
+    """Draw the map and animate a planned simulation with Pygame."""
+
     def __init__(self, simulation: Simulation) -> None:
+        """Create the window and calculate drawing sizes and hub positions."""
         self.simulation = simulation
         self.graph = simulation.graph
         self.margin = 100
@@ -35,6 +38,7 @@ class PygameRenderer:
         self.drone_radius = max(4, min(10, round(self.hub_radius / 3)))
 
     def run(self) -> None:
+        """Handle manual, automatic, reset, and exit controls each frame."""
         running = True
         clock = pygame.time.Clock()
 
@@ -73,6 +77,7 @@ class PygameRenderer:
         pygame.quit()
 
     def _calculate_positions(self) -> None:
+        """Scale and center map coordinates within the drawing area."""
         hubs = list(self.graph.hubs.values())
 
         min_x = min(hub.x for hub in hubs)
@@ -111,6 +116,7 @@ class PygameRenderer:
             self.positions[hub] = (x, y)
 
     def _get_min_hub_distance(self) -> float:
+        """Return the closest distance between hub centers in pixels."""
         positions = list(self.positions.values())
         min_distance = float("inf")
 
@@ -122,6 +128,7 @@ class PygameRenderer:
         return min_distance
 
     def _start_animation(self) -> None:
+        """Start one turn's animation unless busy or already finished."""
         if self.is_animating or self.simulation.is_finished():
             return
 
@@ -129,6 +136,7 @@ class PygameRenderer:
         self.is_animating = True
 
     def _update_animation(self, delta_seconds: float) -> None:
+        """Advance the animation and commit a turn when it completes."""
         self.elapsed_seconds += delta_seconds
 
         if self.is_animating:
@@ -147,6 +155,7 @@ class PygameRenderer:
     def _get_drone_position(
         self, drone: Drone, turn: float
     ) -> tuple[float, float]:
+        """Interpolate a drone's pixel position at a fractional turn."""
         if turn >= drone.end_turn:
             return self.positions[drone.end_hub]
 
@@ -167,6 +176,7 @@ class PygameRenderer:
         raise ValueError(f"No position for drone {drone.id} at turn {turn}")
 
     def _draw_connections(self) -> None:
+        """Draw every graph connection behind the hubs."""
         for connection in self.graph.connections:
             start = self.positions[connection.source]
             end = self.positions[connection.target]
@@ -180,6 +190,7 @@ class PygameRenderer:
             )
 
     def _draw_hubs(self) -> None:
+        """Draw hubs with their colors, zone rings, and fitting labels."""
         zone_ring_colors = {
             "blocked": (240, 70, 70),
             "priority": (80, 220, 110),
@@ -238,6 +249,7 @@ class PygameRenderer:
                 )
 
     def _get_drone_groups(self) -> dict[tuple[int, int], list[Drone]]:
+        """Group visible drones sharing a pixel position."""
         turn = self.simulation.turn + self.animation_progress
         groups: dict[tuple[int, int], list[Drone]] = {}
 
@@ -257,6 +269,7 @@ class PygameRenderer:
         return groups
 
     def _draw_drones(self) -> None:
+        """Draw drone markers and counts for overlapping drones."""
         groups = self._get_drone_groups()
         hub_positions = {
             (round(x), round(y)) for x, y in self.positions.values()
@@ -286,6 +299,7 @@ class PygameRenderer:
                 self.screen.blit(text, text_rect)
 
     def _draw_hover_label(self) -> None:
+        """Show a long hub name when the pointer hovers over it."""
         mouse_position = pygame.mouse.get_pos()
 
         for hub, position in self.positions.items():
@@ -308,6 +322,7 @@ class PygameRenderer:
                 break
 
     def _draw_status(self) -> None:
+        """Display turn progress, delivered drones, and control hints."""
         last_turn = max(
             (drone.end_turn for drone in self.simulation.drones),
             default=0,
@@ -330,13 +345,16 @@ class PygameRenderer:
             status = "Listo para el siguiente turno"
 
         messages = [
-            summary, "Espacio: siguiente turno · Esc: salir", status,
+            summary,
+            "Espacio: turno · A: modo auto · R: reiniciar · Esc: salir",
+            status,
         ]
         for index, message in enumerate(messages):
             text = self.marker_font.render(message, True, (220, 230, 240))
             self.screen.blit(text, (20, 12 + index * 42))
 
     def _get_hub_color(self, color: str | None) -> pygame.Color:
+        """Resolve a Pygame color, including animated rainbow and fallback."""
         if color is None:
             return pygame.Color(180, 200, 220)
 
@@ -358,6 +376,7 @@ class PygameRenderer:
     def _get_text_color(
         self, background: pygame.Color
     ) -> tuple[int, int, int]:
+        """Choose light or dark text for contrast against a hub color."""
         brightness = background.grayscale().r
 
         if brightness < 128:
@@ -369,6 +388,7 @@ class PygameRenderer:
         self,
         steps: list[tuple[Drone, Hub | Connection]],
     ) -> None:
+        """Print ``steps`` as one line of drone movement tokens."""
         movements = []
 
         for drone, position in steps:

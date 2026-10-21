@@ -3,6 +3,8 @@ from typing import Literal
 
 
 class HubModel(BaseModel):
+    """Validate one hub definition and its optional metadata."""
+
     type: Literal["hub", "start_hub", "end_hub"]
     name: str
     x: int
@@ -14,6 +16,7 @@ class HubModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_max_drones(self) -> "HubModel":
+        """Require positive capacity for ordinary hubs."""
         if self.type == "hub" and self.max_drones < 1:
             raise ValueError(
                     f"Line {self.n_line}: max_drones must be greater than 0."
@@ -23,6 +26,7 @@ class HubModel(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def validate_zone(cls, data: object) -> object:
+        """Reject unknown zone types with the source line number."""
         if not isinstance(data, dict):
             return data
 
@@ -36,6 +40,7 @@ class HubModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_name(self) -> "HubModel":
+        """Reject dashes in names reserved for connection syntax."""
         if "-" in self.name:
             raise ValueError(
                 f"Line {self.n_line}: hub name '{self.name}' "
@@ -45,6 +50,8 @@ class HubModel(BaseModel):
 
 
 class ConnectionModel(BaseModel):
+    """Validate a connection definition and its capacity."""
+
     source: str
     target: str
     n_line: int
@@ -52,6 +59,7 @@ class ConnectionModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_capacity(self) -> "ConnectionModel":
+        """Require a positive connection capacity."""
         if self.max_link_capacity < 1:
             raise ValueError(
                     f"Line {self.n_line}: connection capacity can't be less "
@@ -61,6 +69,8 @@ class ConnectionModel(BaseModel):
 
 
 class MapModel(BaseModel):
+    """Validate the drone count, hubs, and connections of a map."""
+
     nb_drones: int
     nb_drones_line: int
     nodes: list[HubModel]
@@ -68,6 +78,7 @@ class MapModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_nb_drones(self) -> "MapModel":
+        """Require at least one drone."""
         if self.nb_drones < 1:
             raise ValueError(
                     f"Line {self.nb_drones_line}: nb_drones must be greater"
@@ -77,6 +88,7 @@ class MapModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_start_end_hubs(self) -> "MapModel":
+        """Require exactly one start hub and one end hub."""
         starts = [hub for hub in self.nodes if hub.type == "start_hub"]
         ends = [hub for hub in self.nodes if hub.type == "end_hub"]
         if len(starts) != 1:
@@ -105,6 +117,7 @@ class MapModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_unique_hubs(self) -> "MapModel":
+        """Reject duplicate hub names or coordinates."""
         seen_names = set()
         seen_coordinates = set()
         for hub in self.nodes:
@@ -125,6 +138,7 @@ class MapModel(BaseModel):
 
     @model_validator(mode="after")
     def validate_connections(self) -> "MapModel":
+        """Reject unknown endpoints and duplicate undirected links."""
         names = [hub.name for hub in self.nodes]
         seen = set()
         for connection in self.connections:

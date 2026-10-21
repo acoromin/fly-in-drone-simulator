@@ -11,7 +11,10 @@ from simulation import Drone, Simulation
 
 
 def main() -> int:
-    """Run the drone simulation and return an exit status."""
+    """Run the map in ``sys.argv`` and return its exit status.
+
+    Use 0 for success, 1 for handled errors, and 130 for Ctrl+C.
+    """
     if len(sys.argv) != 2:
         print(
             f"Usage: python3 {sys.argv[0]} <map_file>",

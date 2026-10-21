@@ -6,6 +6,8 @@ from typing import TypedDict
 
 
 class MapData(TypedDict):
+    """Hold the parser output expected by ``MapModel``."""
+
     nb_drones: int
     nb_drones_line: int
     nodes: list[dict[str, str | int]]
@@ -13,11 +15,15 @@ class MapData(TypedDict):
 
 
 class MapParser:
+    """Read map files and convert their grammar trees to model data."""
+
     def __init__(self) -> None:
+        """Load the map grammar with source positions for error messages."""
         grammar_path = Path(__file__).with_name("grammar.lark")
         self._parser = Lark.open(str(grammar_path), propagate_positions=True)
 
     def read_file(self, file_route: str) -> str:
+        """Return UTF-8 contents of ``file_route`` or raise ``MapError``."""
         try:
             with open(file_route, "r", encoding="utf-8") as file:
                 text = file.read()
@@ -26,7 +32,10 @@ class MapParser:
         return text
 
     def parse_file(self, file_route: str) -> Tree[Token]:
+        """Parse ``file_route`` into a tree, allowing no final newline."""
         map_text = self.read_file(file_route)
+        if not map_text.endswith("\n"):
+            map_text += "\n"
         try:
             tree = self._parser.parse(map_text)
         except UnexpectedInput as error:
@@ -34,6 +43,7 @@ class MapParser:
         return tree
 
     def _parse_metadata(self, data: Tree[Token]) -> dict[str, int | str]:
+        """Extract hub metadata and reject repeated keys."""
         metadata_data: dict[str, int | str] = {}
         seen = set()
         for item in data.children:
@@ -68,6 +78,7 @@ class MapParser:
             connection_data: dict[str, int | str],
             defined_hubs: set[str]
             ) -> None:
+        """Require each connection endpoint to be declared earlier."""
         source = connection_data["source"]
         target = connection_data["target"]
         line = connection_data["n_line"]
@@ -79,6 +90,7 @@ class MapParser:
             )
 
     def convert_data(self, file_route: str) -> MapData:
+        """Return data from ``file_route`` for Pydantic validation."""
         tree = self.parse_file(file_route)
         branches = tree.children
         defined_hubs: set[str] = set()

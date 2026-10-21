@@ -10,7 +10,7 @@ nodes: "start_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? _NEWLINE+ -> start_
 metadata: "[" data+ "]"
 
 data: color | zone | max_drones
-color: "color=" CNAME
+color: "color=" COLOR_VALUE
 zone: "zone=" CNAME
 max_drones: "max_drones=" SIGNED_INT
 
@@ -20,6 +20,7 @@ c_data: "max_link_capacity=" SIGNED_INT
 
 NAME: /[^\s-]+/
 HUB_NAME: /\S+/
+COLOR_VALUE: /[^\s\[\]]+/
 
 %import common.CNAME
 %import common.SIGNED_INT
