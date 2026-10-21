@@ -17,6 +17,14 @@ class Simulation:
                 drone.is_delivered(self.turn) for drone in self.drones
                 )
 
+    def rewind(self) -> None:
+        """Return to the previous completed turn, stopping at turn zero."""
+        self.turn = max(0, self.turn - 1)
+
+    def reset(self) -> None:
+        """Return to the initial turn without changing planned itineraries."""
+        self.turn = 0
+
     def step(self) -> list[tuple[Drone, Hub | Connection]]:
         """Advance one turn; return moved drones with hubs or connections.
 

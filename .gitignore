@@ -4,3 +4,8 @@ __pycache__/
 *.pyc
 .mypy_cache/
 .pytest_cache/
+
+# Local assistant and account configuration
+.agents/
+.codex/
+.aws/
